@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DevOps TaskFlow — Production Dashboard</title>
+  <meta name="description" content="Production-grade DevOps Task Manager Dashboard with real-time monitoring and REST API integration.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Background glow effects -->
+  <div class="bg-glow bg-glow-1"></div>
+  <div class="bg-glow bg-glow-2"></div>
+  <div class="bg-glow bg-glow-3"></div>
+
+  <!-- Header Navigation -->
+  <header class="navbar">
+    <div class="nav-container">
+      <div class="brand">
+        <div class="brand-icon">
+          <i class="fa-solid fa-cubes-stacked"></i>
+        </div>
+        <div class="brand-text">
+          <span class="brand-title">DevOps <strong>TaskFlow</strong></span>
+          <span class="brand-badge"><i class="fa-solid fa-circle pulse-dot"></i> Live Stack</span>
+        </div>
+      </div>
+
+      <!-- Quick External Links -->
+      <div class="nav-links">
+        <a href="http://localhost:3001" target="_blank" class="nav-btn-link" title="Open Grafana Dashboard">
+          <i class="fa-solid fa-chart-line text-orange"></i> Grafana
+        </a>
+        <a href="http://localhost:9090" target="_blank" class="nav-btn-link" title="Open Prometheus Metrics">
+          <i class="fa-solid fa-fire-flame-curved text-red"></i> Prometheus
+        </a>
+        <a href="/metrics" target="_blank" class="nav-btn-link" title="Raw Prometheus Metrics">
+          <i class="fa-solid fa-code text-blue"></i> /metrics
+        </a>
+        <a href="/health" target="_blank" class="nav-btn-link" title="API Health Check">
+          <i class="fa-solid fa-heart-pulse text-green"></i> Health
+        </a>
+      </div>
+
+      <!-- User Profile / Auth Area -->
+      <div class="nav-user-area" id="navUserArea">
+        <!-- Injected via JS -->
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="main-wrapper">
+
+    <!-- ─── AUTH VIEW (Shown when logged out) ─── -->
+    <section id="authSection" class="auth-section">
+      <div class="auth-card glass-panel">
+        <div class="auth-header">
+          <div class="auth-pill">
+            <i class="fa-solid fa-shield-halved"></i> DevOps Security
+          </div>
+          <h2>Welcome to TaskFlow</h2>
+          <p>Full-Stack Microservices Architecture with Docker & CI/CD</p>
+        </div>
+
+        <!-- Auth Tabs -->
+        <div class="auth-tabs">
+          <button class="auth-tab active" id="tabLoginBtn" onclick="switchAuthTab('login')">
+            <i class="fa-solid fa-right-to-bracket"></i> Masuk
+          </button>
+          <button class="auth-tab" id="tabRegisterBtn" onclick="switchAuthTab('register')">
+            <i class="fa-solid fa-user-plus"></i> Daftar Akun
+          </button>
+        </div>
+
+        <!-- Login Form -->
+        <form id="loginForm" class="auth-form" onsubmit="handleLogin(event)">
+          <div class="form-group">
+            <label for="loginEmail"><i class="fa-regular fa-envelope"></i> Email Address</label>
+            <input type="email" id="loginEmail" placeholder="nama@email.com" required autocomplete="email" value="raihan@test.com">
+          </div>
+          <div class="form-group">
+            <label for="loginPassword"><i class="fa-solid fa-lock"></i> Password</label>
+            <input type="password" id="loginPassword" placeholder="••••••••" required autocomplete="current-password" value="Test@12345">
+          </div>
+          <button type="submit" class="btn-primary w-100" id="loginSubmitBtn">
+            <span>Masuk ke Dashboard</span>
+            <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </form>
+
+        <!-- Register Form -->
+        <form id="registerForm" class="auth-form hidden" onsubmit="handleRegister(event)">
+          <div class="form-group">
+            <label for="regName"><i class="fa-regular fa-user"></i> Nama Lengkap</label>
+            <input type="text" id="regName" placeholder="Contoh: Raihan Thaffan" required minlength="2">
+          </div>
+          <div class="form-group">
+            <label for="regEmail"><i class="fa-regular fa-envelope"></i> Email</label>
+            <input type="email" id="regEmail" placeholder="email@domain.com" required>
+          </div>
+          <div class="form-group">
+            <label for="regPassword"><i class="fa-solid fa-lock"></i> Password (Min. 8 Karakter)</label>
+            <input type="password" id="regPassword" placeholder="Password kuat..." required minlength="8">
+          </div>
+          <button type="submit" class="btn-primary w-100" id="registerSubmitBtn">
+            <span>Buat Akun Baru</span>
+            <i class="fa-solid fa-check"></i>
+          </button>
+        </form>
+
+        <!-- Demo Credentials Shortcut -->
+        <div class="demo-box">
+          <div class="demo-title">
+            <i class="fa-solid fa-lightbulb text-yellow"></i> Akun Uji Coba Cepat:
+          </div>
+          <div class="demo-creds">
+            <code>Email: raihan@test.com</code>
+            <code>Pass: Test@12345</code>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── DASHBOARD VIEW (Shown when logged in) ─── -->
+    <section id="dashboardSection" class="dashboard-section hidden">
+      <!-- Stats Overview Bar -->
+      <div class="stats-grid">
+        <div class="stat-card glass-panel">
+          <div class="stat-icon icon-blue">
+            <i class="fa-solid fa-list-check"></i>
+          </div>
+          <div class="stat-details">
+            <span class="stat-label">Total Tasks</span>
+            <span class="stat-value" id="statTotal">0</span>
+          </div>
+        </div>
+        <div class="stat-card glass-panel">
+          <div class="stat-icon icon-yellow">
+            <i class="fa-solid fa-clock"></i>
+          </div>
+          <div class="stat-details">
+            <span class="stat-label">In Progress</span>
+            <span class="stat-value" id="statInProgress">0</span>
+          </div>
+        </div>
+        <div class="stat-card glass-panel">
+          <div class="stat-icon icon-green">
+            <i class="fa-solid fa-circle-check"></i>
+          </div>
+          <div class="stat-details">
+            <span class="stat-label">Completed</span>
+            <span class="stat-value" id="statCompleted">0</span>
+          </div>
+        </div>
+        <div class="stat-card glass-panel">
+          <div class="stat-icon icon-red">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+          </div>
+          <div class="stat-details">
+            <span class="stat-label">High Priority</span>
+            <span class="stat-value" id="statHighPriority">0</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action & Filter Bar -->
+      <div class="dashboard-toolbar glass-panel">
+        <div class="toolbar-search">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" id="searchInput" placeholder="Cari task berdasarkan judul..." oninput="handleSearch()">
+        </div>
+
+        <div class="toolbar-filters">
+          <div class="select-wrapper">
+            <select id="statusFilter" onchange="loadTasks()">
+              <option value="">Semua Status</option>
+              <option value="todo">To Do</option>
+              <option value="in_progress">In Progress</option>
+              <option value="done">Done</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+          </div>
+
+          <div class="select-wrapper">
+            <select id="priorityFilter" onchange="loadTasks()">
+              <option value="">Semua Prioritas</option>
+              <option value="critical">Critical</option>
+              <option value="high">High</option>
+              <option value="medium">Medium</option>
+              <option value="low">Low</option>
+            </select>
+          </div>
+
+          <button class="btn-primary" onclick="openCreateModal()">
+            <i class="fa-solid fa-plus"></i>
+            <span>Task Baru</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Task Cards Grid -->
+      <div class="tasks-container">
+        <div class="tasks-header">
+          <h3><i class="fa-solid fa-layer-group text-cyan"></i> Active Task Stream</h3>
+          <span class="tasks-count" id="tasksCountBadge">Showing 0 tasks</span>
+        </div>
+
+        <div id="taskList" class="tasks-grid">
+          <!-- Tasks injected via JS -->
+        </div>
+
+        <!-- Empty state placeholder -->
+        <div id="emptyState" class="empty-state glass-panel hidden">
+          <div class="empty-icon">
+            <i class="fa-solid fa-clipboard-check"></i>
+          </div>
+          <h4>Belum Ada Task</h4>
+          <p>Mulai dengan membuat task baru untuk menguji performa backend API!</p>
+          <button class="btn-secondary" onclick="openCreateModal()">
+            <i class="fa-solid fa-plus"></i> Tambah Task Sekarang
+          </button>
+        </div>
+      </div>
+
+      <!-- System Health Diagnostics Bar -->
+      <div class="system-bar glass-panel">
+        <div class="sys-item">
+          <span class="sys-dot dot-green"></span>
+          <span class="sys-label">API Status:</span>
+          <strong id="apiPing">Checking...</strong>
+        </div>
+        <div class="sys-divider"></div>
+        <div class="sys-item">
+          <i class="fa-solid fa-database text-blue"></i>
+          <span class="sys-label">PostgreSQL:</span>
+          <strong>Connected (5432)</strong>
+        </div>
+        <div class="sys-divider"></div>
+        <div class="sys-item">
+          <i class="fa-brands fa-docker text-cyan"></i>
+          <span class="sys-label">Container Stack:</span>
+          <strong>5 Active</strong>
+        </div>
+        <div class="sys-divider"></div>
+        <div class="sys-item">
+          <i class="fa-solid fa-network-wired text-purple"></i>
+          <span class="sys-label">Proxy:</span>
+          <strong>Nginx Reverse Proxy (80)</strong>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ─── MODAL CREATE/EDIT TASK ─── -->
+  <div id="taskModal" class="modal-backdrop hidden" onclick="closeModalOnBackdrop(event)">
+    <div class="modal-content glass-panel">
+      <div class="modal-header">
+        <h3 id="modalTitle"><i class="fa-solid fa-pen-to-square text-cyan"></i> Buat Task Baru</h3>
+        <button class="modal-close-btn" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <form id="taskForm" onsubmit="handleSaveTask(event)">
+        <input type="hidden" id="taskId">
+
+        <div class="form-group">
+          <label for="taskTitle">Judul Task *</label>
+          <input type="text" id="taskTitle" placeholder="Contoh: Setup Auto Deploy Nginx" required minlength="3" maxlength="200">
+        </div>
+
+        <div class="form-group">
+          <label for="taskDescription">Deskripsi Task</label>
+          <textarea id="taskDescription" rows="3" placeholder="Rincian teknis atau catatan tugas..."></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group flex-1">
+            <label for="taskPriority">Prioritas</label>
+            <select id="taskPriority">
+              <option value="low">🟢 Low</option>
+              <option value="medium" selected>🟡 Medium</option>
+              <option value="high">🔴 High</option>
+              <option value="critical">🔥 Critical</option>
+            </select>
+          </div>
+
+          <div class="form-group flex-1">
+            <label for="taskStatus">Status</label>
+            <select id="taskStatus">
+              <option value="todo" selected>📋 To Do</option>
+              <option value="in_progress">⏳ In Progress</option>
+              <option value="done">✅ Done</option>
+              <option value="cancelled">🚫 Cancelled</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="taskDueDate">Batas Waktu (Due Date)</label>
+          <input type="date" id="taskDueDate">
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" onclick="closeModal()">Batal</button>
+          <button type="submit" class="btn-primary" id="saveTaskBtn">
+            <i class="fa-solid fa-floppy-disk"></i> Simpan Task
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
