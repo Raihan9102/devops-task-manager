@@ -26,6 +26,10 @@ const apiPing = document.getElementById('apiPing');
 document.addEventListener('DOMContentLoaded', () => {
   checkAuth();
   startHealthPinger();
+
+  if (loginForm) loginForm.addEventListener('submit', handleLogin);
+  if (registerForm) registerForm.addEventListener('submit', handleRegister);
+  if (taskForm) taskForm.addEventListener('submit', handleSaveTask);
 });
 
 // ─── Authentication Flow ──────────────────────────────────────────────────────
@@ -508,3 +512,19 @@ function escapeHtml(str) {
   div.appendChild(document.createTextNode(str));
   return div.innerHTML;
 }
+
+// Explicit window bindings
+window.switchAuthTab = switchAuthTab;
+window.handleLogin = handleLogin;
+window.handleRegister = handleRegister;
+window.handleLogout = handleLogout;
+window.openCreateModal = openCreateModal;
+window.openEditModal = openEditModal;
+window.closeModal = closeModal;
+window.closeModalOnBackdrop = closeModalOnBackdrop;
+window.handleSaveTask = handleSaveTask;
+window.quickUpdateStatus = quickUpdateStatus;
+window.deleteTask = deleteTask;
+window.handleSearch = handleSearch;
+window.loadTasks = loadTasks;
+
