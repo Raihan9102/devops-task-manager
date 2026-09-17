@@ -11,6 +11,11 @@ env:
   IMAGE_NAME: ${{ github.repository }}
   NODE_VERSION: '22'
 
+permissions:
+  contents: read
+  packages: write
+  security-events: write
+
 jobs:
   # ─────────────────────────────────────────
   # JOB 1: Lint & Test
